@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration packages="com.robot.log4j.appender">
+	<properties>
+		<property name="directory">log</property>
+		<property name="filename">csnewsCrawler</property>
+		<!-- <property name="pattern">#%d{yyyy-MM-dd HH:mm:ss.SSS}|%-5.5p|%-10.10t|%-20.20C:%-5.5L|%msg%n</property> -->
+		<property name="pattern">#%d{yyyy-MM-dd HH:mm:ss.SSS}|%-5.5p|%-10.10t|%C:%-5.5L|%msg %n</property>
+		<!-- It will look like that: 2013-04-03 07:37:51.993 | WARN | main | lnetgateway.Server:56 
+			| My app is logging stuff -->
+	</properties>
+	<appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="${pattern}" />
+		</Console>
+		<RollingFile name="RollingFile" fileName="${directory}/${filename}.log"
+			filePattern="${directory}/${date:yyyy-MM}/${filename}-%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout>
+				<pattern>${pattern}</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy /><!-- Rotated everyday -->
+				<SizeBasedTriggeringPolicy size="100 MB" /> <!-- Or every 100 MB -->
+			</Policies>
+		</RollingFile>
+		<RobotLog name="mongoDB" bufferSize="1" appName="csnewsCrawler">
+		 
+			<MongoDb databaseName="csnews_task" collectionName="taskLog"
+			 factoryClassName="com.robot.crawler.mongo.core.DataSourceLog"  
+			 factoryMethodName ="getClient"/> 
+			<!-- 
+			 <MongoDb databaseName="csnews_task" collectionName="taskLog" server="rtest04.corp.oocl.com" port="27017"/>
+			-->
+		</RobotLog>
+		
+	</appenders>
+	<loggers>
+		<root level="debug"> <!-- We log everything -->
+			<appender-ref ref="Console" /> 
+			<appender-ref ref="mongoDB" />
+			<appender-ref ref="RollingFile" />
+			 <!-- And to a rotated file -->
+		</root>
+	</loggers>
+</configuration>
